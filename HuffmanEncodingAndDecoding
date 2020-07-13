@@ -1,0 +1,270 @@
+clc;
+clear all;
+data = imread('project_image.png');
+imshow(data);
+figure();
+%converting an image to grayscale
+I=data;
+% Get histogram:
+[repetitions,Locations] = imhist(I)
+% Computer probability density function:
+pdf = repetitions / numel(I);
+plot (pdf);
+%to get probability 
+[N, M] = size(I);
+Count = zeros(256,1);
+for i = 1:N
+ for j = 1:M
+ Count(I(i,j)+1) = Count(I(i,j)+1)+1;
+ end
+end
+ %p contains symbols
+ p = Count/(M*N);
+ %sorting p in descending order so that the first 10 locations contain the  10
+ %symbols
+ p=sort(p,'descend');
+ %removing zeroes in p so B is the matrix containing 10 symbols with no
+ %zeroes
+ B = p(p~=0)
+ %huffman coding
+                                                                                                 %getting codeword (NewMat)is the matrix that contain all the stages to get
+ %the codeword
+ i=1;
+ NewMat=zeros(10,9);
+ NewMat(:,i) = B;
+ len = length(B);
+ 
+ for N = 1:length(B)
+     i=i+1;
+     j=j+1;
+     if len>2
+     
+     
+     m=B(len);
+     L=B(len-1);
+     sum=m+L;
+     sum_matrix = sum;
+     B(end+1) = sum_matrix;
+     
+     B(len) = [];
+     %B(index - 1) = matrix;
+     B=sort(B,'descend');
+     
+     NewMat(:,i) = B;
+     %CodeWord(:,j)=NewMat;
+     
+     len = len -1;
+     
+     else
+         break;
+     end
+          
+     
+    
+ end
+ %%to make all the unnecessary cells equals to zero  
+ rows = 10;
+ counts = 0;
+ for i = 2:size(NewMat,2)
+     NewMat(rows-counts:rows,i) = 0;
+     counts = counts +1;
+ end
+ 
+ 
+% create the full 01 sequence
+%putting 0,1 to last 2 elements in each column
+ CodeWord=zeros(10,9);
+ CodeWord(:,:)=NewMat;
+ [X,Y]=size(CodeWord);
+ co=10;
+for ii=1:Y
+    
+  CodeWord(co,ii)=1;
+  CodeWord(co-1,ii)=0
+  co=co-1;
+  
+end    
+ 
+%creating a new matrix(Result) for the final codeWord  
+Result=cell(10,5);
+[R,C]=size(NewMat);
+ 
+for index=1:X
+    for jj=1:Y
+    
+       if NewMat(index,jj)==CodeWord(1,Y-1)
+          if NewMat(index,jj)==NewMat(2,Y)
+          Result{1,5}=1;
+          end
+       elseif NewMat(index,jj)==NewMat(2,Y-2)
+           if NewMat(index,jj)==NewMat(3,Y-1)
+           Result{2,5}=1;
+           Result{2,4}=0;
+           end
+        elseif NewMat(index,jj)==NewMat(6,Y-5)
+           Result{3,4}=1;
+           Result{3,5}=0;
+           Result{3,1}=0;
+           Result{3,2}=0;
+           Result{3,3}=0;
+           
+       
+       end
+        Result{4,4}=1;
+        Result{4,5}=1;
+        Result{4,1}=0;
+        Result{4,2}=0;
+        Result{4,3}=0;
+        Result{5,1}=0;
+        Result{5,2}=0;
+        Result{5,3}=0;
+        Result{5,4}=0;
+        Result{5,5}=0;
+        Result{6,5}=1;
+        Result{6,1}=0;
+        Result{6,2}=0;
+        Result{6,3}=0;
+        Result{6,4}=0;
+        Result{7,3}=1;
+        Result{7,4}=1;
+        Result{7,1}=0;
+        Result{7,5}=0;
+        Result{7,2}=0;
+        Result{8,3}=1;
+        Result{8,4}=1;
+        Result{8,5}=1;
+        Result{8,1}=0;
+        Result{8,2}=0;
+        Result{9,3}=1;
+        Result{9,1}=0;
+        Result{9,2}=0;
+        Result{9,4}=0;
+        Result{9,5}=0;
+        Result{10,3}=1;
+        Result{10,5}=1;
+        Result{10,1}=0;
+        Result{10,2}=0;
+        Result{10,4}=0;
+           
+       end
+       
+   end
+       
+    
+% start encoding 
+ dd=data(:);
+ enMat = dd.';
+ enMat=sort(enMat,'ascend');
+ %encoded is the new matrix that contains the symbols replaced by it's codeword
+ encoded=zeros(1,28000); 
+ q=1;
+ r=1;
+ s=1;
+ t=1;
+ u=1;
+ k=4000;
+ j=8000;
+ k1 = 10500;
+ k2 = 13000;
+ k3 = 15500;
+ k4 = 18000;
+ k5 = 20500;
+ k6 = 23000;
+ k7 = 25500;
+ 
+ for num=1:length(enMat)
+     var = 1;
+     if enMat(num)==0
+         encoded(num)=1;
+         
+     elseif enMat(num)==80
+         
+         encoded(k+var)=0;
+         encoded(k+var+1)=1;
+         q=q+2;
+         r=r+1;
+         var = 1;
+         
+         k = k+2;
+     elseif enMat(num)==100
+        % j=8000;
+         
+         encoded(j+var)=0;
+         encoded(j+var+1)=0;
+         encoded(j+var+2)=0;
+         encoded(j+var+3)=1;
+         encoded(j+var+4)=0;
+         j = j+5;
+     elseif enMat(num) == 125
+         encoded(k1+var)=0;
+         encoded(k1+var+1)=0;
+         encoded(k1+var+2)=0;
+         encoded(k1+var+3)=1;
+         encoded(k1+var+4)=1;
+         k1 = k1+5;
+     elseif enMat(num) == 150
+         
+         encoded(k2+var)=0;
+         encoded(k2+var+1)=0;
+         encoded(k2+var+2)=0;
+         encoded(k2+var+3)=0;
+         encoded(k2+var+4)=0;
+         k2 = k2+5;
+          elseif enMat(num) == 175
+         
+         encoded(k3+var)=0;
+         encoded(k3+var+1)=0;
+         encoded(k3+var+2)=0;
+         encoded(k3+var+3)=0;
+         encoded(k3+var+4)=1;
+         k3 = k3+5;
+         elseif enMat(num) == 200
+         
+         encoded(k4+var)=0;
+         encoded(k4+var+1)=0;
+         encoded(k4+var+2)=1;
+         encoded(k4+var+3)=1;
+         encoded(k4+var+4)=0;
+         k4 = k4+5;
+         elseif enMat(num) == 215
+         
+         encoded(k5+var)=0;
+         encoded(k5+var+1)=0;
+         encoded(k5+var+2)=1;
+         encoded(k5+var+3)=1;
+         k4 = k4+5;
+       elseif enMat(num) == 215
+         
+         encoded(k5+var)=0;
+         encoded(k5+var+1)=0;
+         encoded(k5+var+2)=1;
+         encoded(k5+var+3)=1;
+         encoded(k5+var+4)=1;
+         k5 = k5+5;
+         
+     elseif enMat(num) == 232
+         
+         encoded(k6+var)=0;
+         encoded(k6+var+1)=0;
+         encoded(k6+var+2)=1;
+         encoded(k6+var+3)=0;
+         encoded(k6+var+4)=0;
+         k6 = k6+5;
+     elseif enMat(num) == 255
+         
+         encoded(k7+var)=0;
+         encoded(k7+var+1)=0;
+         encoded(k7+var+2)=1;
+         encoded(k7+var+3)=0;
+         encoded(k7+var+4)=1;
+         k7 = k7+5;
+ 
+         
+         
+         
+         
+     
+         
+     end
+ end
+
